@@ -12,13 +12,17 @@ import com.rockseven.stachelagbackend.dao.*;
 public class GeoUtil {
 	
 	@Autowired
-	private RaceDataDaoImpl raceDataDaoImpl;
+	private static DatabaseSeeder databaseSeeder;
+	
+	
 	
 //	Calculate distance between two points in latitude and longitude taking
 //    into account height difference. If you are not interested in height
 //    difference pass 0.0. Uses Haversine method as its base.
-//	
-	static double distance(double lat1, double lat2, double lon1,
+//	This method was benevolently sponsored by StackOverflow
+//https://stackoverflow.com/questions/3694380/calculating-distance-between-two-points-using-latitude-longitude#16794680
+	
+	public static double distance(double lat1, double lat2, double lon1,
             double lon2, double el1, double el2) {
 
 				final int R = 6371; // Radius of the earth
@@ -37,12 +41,16 @@ public class GeoUtil {
 				
 				return Math.sqrt(distance) / 1000.0; // Back to kilometers
 	}
+
+	/*
+	Analyses the list of positions for vessels that can see each other and if they can, records
+	data to the Db
+  	According to W.H. Pick's book "Visibility At Sea", the excellent visibility allows 30 nautical miles
+  	https://rmets.onlinelibrary.wiley.com/doi/pdf/10.1002/qj.49705824505
+  	for vessels to see each other. 1 nautical mile = 1.85 km. Approx 55Km visibility.
 	
-//	Analyses the list of positions for vessels that can see each other and writes to MySQL
-//    Assumes a clear day with 55KM visibility (30nKm)
-//	positions A list of vessels that can see each other
-//    sampleDate Start time of the sample
-	
+	sampleDate Start time of the sample
+	*/
 	public static void generateSightingData(List<Positions> positions, Date sampleDate) {
         double visibilityKm = 55.0;
         /*
@@ -51,21 +59,26 @@ public class GeoUtil {
          */
         List<Integer> seenSerials = new LinkedList<>();
 
-        for (Positions firstYacht : positions) {
-            if(!seenSerials.contains(firstYacht.getTeamSerial())) {
-                List<Positions> firstYachtSighting = new LinkedList<>();
-                for (Positions secondYacht : positions) {
-                    if(firstYacht.getTeamSerial() != secondYacht.getTeamSerial()) {
-                        double distanceM = distance(firstYacht.getLatitude(), secondYacht.getLatitude(), firstYacht.getLongitude(), secondYacht.getLongitude(), firstYacht.getAltitude(), secondYacht.getAltitude());
+        for (Positions firstVessel : positions) {
+            if(!seenSerials.contains(firstVessel.getTeamSerial())) {
+                List<Positions> firstVesselSighting = new LinkedList<>();
+                for (Positions secondVessel : positions) {
+                    if(firstVessel.getTeamSerial() != secondVessel.getTeamSerial()) {
+                        double distanceM = distance(firstVessel.getLatitude(),
+                        		secondVessel.getLatitude(), 
+                        		firstVessel.getLongitude(), 
+                        		secondVessel.getLongitude(),
+                        		firstVessel.getAltitude(), 
+                        		secondVessel.getAltitude());
                         if(distanceM < visibilityKm) {
-                            firstYachtSighting.add(secondYacht);
+                            firstVesselSighting.add(secondVessel);
                         }
                     }
                 }
                 
-                writeSightingsToDB(sampleDate, firstYacht.getTeamSerial(), firstYachtSighting);
-                //System.out.println( "   * " + firstYacht.getTeamName() + " could see " +  firstYachtSighting.size() + " other participants");
-                seenSerials.add(firstYacht.getTeamSerial());
+                databaseSeeder.writeSightingsToDb(sampleDate, firstVessel.getTeamSerial(), firstVesselSighting);
+                //System.out.println( "   * " + firstVessel.getTeamName() + " could see " +  firstVesselSighting.size() + " other participants");
+                seenSerials.add(firstVessel.getTeamSerial());
             }
         }
     }

@@ -14,7 +14,7 @@ public class DateUtil {
 	        return new Date(calendar.getTimeInMillis());
 	    }
 
-	public   static Date addFourHours(Date date) {
+	public static Date addFourHours(Date date) {
 	        Calendar calendar = getInstance();
 	        calendar.setTime(date);
 	        calendar.add(HOUR, 4);
