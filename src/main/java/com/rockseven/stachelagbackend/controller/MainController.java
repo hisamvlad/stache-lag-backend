@@ -15,7 +15,7 @@ public class MainController {
 	}
 	
 	@GetMapping("/")
-	public String payloadRequest() {
+	public String payloadRequest() throws Exception {
 		mainService.produceCsvReport();
 		return "Please check for the report @ C:/temp/sightings.csv";
 	}

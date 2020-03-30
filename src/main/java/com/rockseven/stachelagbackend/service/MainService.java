@@ -13,8 +13,8 @@ public class MainService {
 		this.csvMapperUtil = csvMapperUtil;
 	}
 	
-	public void produceCsvReport() {
-		csvMapperUtil.produceCsvFromDb();
+	public void produceCsvReport() throws Exception {
+		csvMapperUtil.generateCsv();
 		
 	}
 	

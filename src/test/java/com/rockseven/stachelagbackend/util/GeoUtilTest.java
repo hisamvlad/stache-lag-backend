@@ -15,16 +15,6 @@ class GeoUtilTest {
                 .isBetween(7.0, 8.0);
     }
 
-    @Test
-    public void testSightingsDataGeneration() {
-//        connectToDatabase();    //TODO: For a good unit test, this should be a separate database connection
-//        Calendar calendar = getInstance();
-//        //calendar.set(2017, NOVEMBER, 19, 20, 0, 0);
-//        calendar.set(2017, NOVEMBER, 22, 16, 0, 0);
-//        Date date = new Date(calendar.getTimeInMillis());
-//        List<Positions> positions = getPositionsForMoment(date);
-//        //Commented out, as will alter database
-//        //DistanceHelper.generateSightingData(positions, date);
-    }
+
 
 }
